@@ -913,7 +913,7 @@
     },
     "User": {
       "type": "object",
-      "x-rdf:type": "https://schema.org/Person",
+      "x-rdf-type": "https://schema.org/Person",
       "properties": {
         "id": {
           "type": "integer",
