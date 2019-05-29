@@ -61,7 +61,7 @@ export default class ObjectModel extends Component {
 
     const titleEl = title && <span className="model-title">
       { isRef && schema.get("$$ref") && <span className="model-hint">{ schema.get("$$ref") }</span> }
-      <span className="model-title__text"><a href={xrdftype}>{ title }</a></span>
+      <span className="model-title__text"><a href={xrdftype}>{ title } ({ xrdftype })</a></span>
     </span>
 
     return <span className="model">
