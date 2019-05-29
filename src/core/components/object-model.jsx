@@ -38,6 +38,7 @@ export default class ObjectModel extends Component {
     let additionalProperties = schema.get("additionalProperties")
     let title = schema.get("title") || displayName || name
     let requiredProperties = schema.get("required")
+    let xrdftype = schema.get("x-rdf-type")
 
     const JumpToPath = getComponent("JumpToPath", true)
     const Markdown = getComponent("Markdown")
@@ -60,7 +61,7 @@ export default class ObjectModel extends Component {
 
     const titleEl = title && <span className="model-title">
       { isRef && schema.get("$$ref") && <span className="model-hint">{ schema.get("$$ref") }</span> }
-      <span className="model-title__text">{ title }</span>
+      <span className="model-title__text"><a href={xrdftype}>{ title }</a></span>
     </span>
 
     return <span className="model">
