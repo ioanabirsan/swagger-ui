@@ -5,6 +5,7 @@ import ImPropTypes from "react-immutable-proptypes"
 
 const braceOpen = "{"
 const braceClose = "}"
+const schemaUrl = "https://schema.org/version/3.6/schema.jsonld"
 
 export default class ObjectModel extends Component {
   static propTypes = {
@@ -39,6 +40,7 @@ export default class ObjectModel extends Component {
     let title = schema.get("title") || displayName || name
     let requiredProperties = schema.get("required")
     let xrdftype = schema.get("x-rdf-type")
+    let conceptDescription = fetchFromSchema(schemaUrl, xrdftype)
 
     const JumpToPath = getComponent("JumpToPath", true)
     const Markdown = getComponent("Markdown")
@@ -55,13 +57,40 @@ export default class ObjectModel extends Component {
         }
     </span>)
 
+    function fetchFromSchema(url, conceptId){
+      fetch(url,  {mode: 'no-cors'})
+        .then(function(response) {
+          if (response.ok) {
+            return response.json();
+          } else {
+            // no response ???? why?
+            alert(`${response.status}:${response.statusText}`);
+          }
+        })
+        .then(function(response) {
+          getDescription(response.value, conceptId);
+        });
+    }
+
+    function getDescription(content, conceptId){
+      for (let concept in content["@graph"]) {
+        if(conceptId === concept["@id"]) {
+          return concept["rdfs:comment"];
+        }
+      }
+
+      return "";
+    }
+
     const anyOf = specSelectors.isOAS3() ? schema.get("anyOf") : null
     const oneOf = specSelectors.isOAS3() ? schema.get("oneOf") : null
     const not = specSelectors.isOAS3() ? schema.get("not") : null
 
     const titleEl = title && <span className="model-title">
       { isRef && schema.get("$$ref") && <span className="model-hint">{ schema.get("$$ref") }</span> }
-      <span className="model-title__text"><a href={xrdftype}>{ title } ({ xrdftype })</a></span>
+      <span className="model-title__text">
+        <a title={conceptDescription} href={xrdftype}>{ title } ({ xrdftype })</a>
+      </span>
     </span>
 
     return <span className="model">
