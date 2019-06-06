@@ -9,7 +9,8 @@ const braceClose = "}"
 const schemaUrl = "https://raw.githubusercontent.com/ioanabirsan/swagger-ui/master/schema.jsonld"
 
 export default class ObjectModel extends Component {
-  static propTypes = {
+
+    static propTypes = {
     schema: PropTypes.object.isRequired,
     getComponent: PropTypes.func.isRequired,
     getConfigs: PropTypes.func.isRequired,
@@ -22,6 +23,40 @@ export default class ObjectModel extends Component {
     expandDepth: PropTypes.number,
     depth: PropTypes.number,
     specPath: ImPropTypes.list.isRequired
+  }
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      schemaOrg: schemaOrg
+    }
+  }
+
+   getConceptDescriptionFromSchemaOrg (id) {
+    let concept = this.getConceptFromSchemaOrg(id)
+    let description = this.getDescription(concept)
+    return description
+  }
+
+  getConceptFromSchemaOrg (id) {
+    let schemaOrg = this.getSchemaOrg()
+    return schemaOrg["@graph"].find(concept => concept["@id"] === id)
+  }
+
+  getSchemaOrg () {
+    return this.state.schemaOrg
+  }
+
+  getDescription (concept) {
+    return concept["rdfs:comment"]
+  }
+
+
+  componentWillMount() {
+    fetch("https://schema.org/version/3.7/schema.jsonld")
+      .then(response => response.json())
+      .then(schema => this.setState({schemaOrg: schema}))
+      .catch(() => this.setState({schemaOrg: schemaOrg}))
   }
 
   render(){
@@ -41,7 +76,7 @@ export default class ObjectModel extends Component {
     let title = schema.get("title") || displayName || name
     let requiredProperties = schema.get("required")
     let xrdftype = schema.get("x-rdf-type")
-    let conceptDescription = getConceptDescriptionFromSchemaOrg(xrdftype)
+    let conceptDescription = this.getConceptDescriptionFromSchemaOrg(xrdftype)
 
     const JumpToPath = getComponent("JumpToPath", true)
     const Markdown = getComponent("Markdown")
@@ -57,26 +92,6 @@ export default class ObjectModel extends Component {
           isRef ? <JumpToPathSection /> : ""
         }
     </span>)
-
-    function getConceptDescriptionFromSchemaOrg (id) {
-      let concept = getConceptFromSchemaOrg(id)
-      let description = getDescription(concept)
-      return description
-    }
-
-    function getConceptFromSchemaOrg (id) {
-      let schemaOrg = getSchemaOrg()
-      return schemaOrg["@graph"].find(concept => concept["@id"] === id)
-    }
-
-    function getSchemaOrg () {
-      return schemaOrg
-    }
-
-    function getDescription (concept) {
-      return concept["rdfs:comment"]
-    }
-
 
     const anyOf = specSelectors.isOAS3() ? schema.get("anyOf") : null
     const oneOf = specSelectors.isOAS3() ? schema.get("oneOf") : null
