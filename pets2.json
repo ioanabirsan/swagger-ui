@@ -861,7 +861,7 @@
   "definitions": {
     "Order": {
       "type": "object",
-      "x-rdf-type": "https://schema.org/Order",
+      "x-rdf-type": "http://schema.org/Order",
       "properties": {
         "id": {
           "type": "integer",
@@ -914,7 +914,7 @@
     },
     "User": {
       "type": "object",
-      "x-rdf-type": "https://schema.org/Person",
+      "x-rdf-type": "http://schema.org/Person",
       "properties": {
         "id": {
           "type": "integer",
@@ -965,7 +965,7 @@
     },
     "Pet": {
       "type": "object",
-      "x-rdf-type": "https://schema.org/Pet",
+      "x-rdf-type": "http://schema.org/Pet",
       "required": [
         "name",
         "photoUrls"
