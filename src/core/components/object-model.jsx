@@ -32,8 +32,13 @@ export default class ObjectModel extends Component {
     }
   }
 
-   getConceptDescriptionFromSchemaOrg (id) {
+  getConceptDescriptionFromSchemaOrg (id) {
+    if (!id) { return null }
+
     let concept = this.getConceptFromSchemaOrg(id)
+
+    if (!concept) {return null}
+
     let description = this.getDescription(concept)
     return description
   }
@@ -75,7 +80,7 @@ export default class ObjectModel extends Component {
     let additionalProperties = schema.get("additionalProperties")
     let title = schema.get("title") || displayName || name
     let requiredProperties = schema.get("required")
-    let xrdftype = schema.get("x-rdf-type")
+    let xrdftype = schema.get("x-rdf-type") || null
     let conceptDescription = this.getConceptDescriptionFromSchemaOrg(xrdftype)
 
     const JumpToPath = getComponent("JumpToPath", true)
@@ -100,10 +105,11 @@ export default class ObjectModel extends Component {
     const titleEl = title && <span className="model-title">
       { isRef && schema.get("$$ref") && <span className="model-hint">{ schema.get("$$ref") }</span> }
       <span className="model-title__text">
-        <p><a title={ conceptDescription } href={ xrdftype }>{ title }</a></p>
-        <p>{ conceptDescription }</p>
+        <span>
+          <p><a title={ conceptDescription } href={ xrdftype }>{ title }</a></p>
+          <p>{ conceptDescription }</p>
+        </span>
       </span>
-
     </span>
 
     return <span className="model">
