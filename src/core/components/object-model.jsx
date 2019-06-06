@@ -2,10 +2,11 @@ import React, { Component, } from "react"
 import PropTypes from "prop-types"
 import { List } from "immutable"
 import ImPropTypes from "react-immutable-proptypes"
+import schemaOrg from "./schema-org"
 
 const braceOpen = "{"
 const braceClose = "}"
-const schemaUrl = "https://schema.org/version/3.6/schema.jsonld"
+const schemaUrl = "https://raw.githubusercontent.com/ioanabirsan/swagger-ui/master/schema.jsonld"
 
 export default class ObjectModel extends Component {
   static propTypes = {
@@ -40,7 +41,7 @@ export default class ObjectModel extends Component {
     let title = schema.get("title") || displayName || name
     let requiredProperties = schema.get("required")
     let xrdftype = schema.get("x-rdf-type")
-    let conceptDescription = fetchFromSchema(schemaUrl, xrdftype)
+    let conceptDescription = getConceptDescriptionFromSchemaOrg(xrdftype)
 
     const JumpToPath = getComponent("JumpToPath", true)
     const Markdown = getComponent("Markdown")
@@ -57,30 +58,25 @@ export default class ObjectModel extends Component {
         }
     </span>)
 
-    function fetchFromSchema(url, conceptId){
-      fetch(url,  {mode: 'no-cors'})
-        .then(function(response) {
-          if (response.ok) {
-            return response.json();
-          } else {
-            // no response ???? why?
-            alert(`${response.status}:${response.statusText}`);
-          }
-        })
-        .then(function(response) {
-          getDescription(response.value, conceptId);
-        });
+    function getConceptDescriptionFromSchemaOrg (id) {
+      let concept = getConceptFromSchemaOrg(id)
+      let description = getDescription(concept)
+      return description
     }
 
-    function getDescription(content, conceptId){
-      for (let concept in content["@graph"]) {
-        if(conceptId === concept["@id"]) {
-          return concept["rdfs:comment"];
-        }
-      }
-
-      return "";
+    function getConceptFromSchemaOrg (id) {
+      let schemaOrg = getSchemaOrg()
+      return schemaOrg["@graph"].find(concept => concept["@id"] === id)
     }
+
+    function getSchemaOrg () {
+      return schemaOrg
+    }
+
+    function getDescription (concept) {
+      return concept["rdfs:comment"]
+    }
+
 
     const anyOf = specSelectors.isOAS3() ? schema.get("anyOf") : null
     const oneOf = specSelectors.isOAS3() ? schema.get("oneOf") : null
@@ -89,8 +85,10 @@ export default class ObjectModel extends Component {
     const titleEl = title && <span className="model-title">
       { isRef && schema.get("$$ref") && <span className="model-hint">{ schema.get("$$ref") }</span> }
       <span className="model-title__text">
-        <a title={conceptDescription} href={xrdftype}>{ title } ({ xrdftype })</a>
+        <p><a title={ conceptDescription } href={ xrdftype }>{ title }</a></p>
+        <p>{ conceptDescription }</p>
       </span>
+
     </span>
 
     return <span className="model">
