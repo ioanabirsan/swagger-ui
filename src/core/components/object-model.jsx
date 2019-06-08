@@ -6,11 +6,10 @@ import schemaOrg from "./schema-org"
 
 const braceOpen = "{"
 const braceClose = "}"
-const schemaUrl = "https://raw.githubusercontent.com/ioanabirsan/swagger-ui/master/schema.jsonld"
 
 export default class ObjectModel extends Component {
 
-    static propTypes = {
+  static propTypes = {
     schema: PropTypes.object.isRequired,
     getComponent: PropTypes.func.isRequired,
     getConfigs: PropTypes.func.isRequired,
@@ -25,7 +24,7 @@ export default class ObjectModel extends Component {
     specPath: ImPropTypes.list.isRequired
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       schemaOrg: schemaOrg
@@ -56,24 +55,36 @@ export default class ObjectModel extends Component {
     return concept["rdfs:comment"]
   }
 
+  getXRdfTypeProperty (properties, propertyName){
+    for (var [key, value] of properties.entries()){
+      if (key === propertyName) {
+        for (var [innerKey, innerValue] of value.entries()) {
+          if (innerKey === "x-rdf-type") {
+            return innerValue
+          }
+        }
+      }
+    }
+    return null
+  }
 
-  componentWillMount() {
+  componentWillMount () {
     fetch("https://schema.org/version/3.7/schema.jsonld")
       .then(response => response.json())
       .then(schema => this.setState({schemaOrg: schema}))
       .catch(() => this.setState({schemaOrg: schemaOrg}))
   }
 
-  render(){
-    let { schema, name, displayName, isRef, getComponent, getConfigs, depth, onToggle, expanded, specPath, ...otherProps } = this.props
-    let { specSelectors,expandDepth } = otherProps
-    const { isOAS3 } = specSelectors
+  render () {
+    let {schema, name, displayName, isRef, getComponent, getConfigs, depth, onToggle, expanded, specPath, ...otherProps} = this.props
+    let {specSelectors, expandDepth} = otherProps
+    const {isOAS3} = specSelectors
 
-    if(!schema) {
+    if (!schema) {
       return null
     }
 
-    const { showExtensions } = getConfigs()
+    const {showExtensions} = getConfigs()
 
     let description = schema.get("description")
     let properties = schema.get("properties")
@@ -81,6 +92,7 @@ export default class ObjectModel extends Component {
     let title = schema.get("title") || displayName || name
     let requiredProperties = schema.get("required")
     let xrdftype = schema.get("x-rdf-type") || null
+
     let conceptDescription = this.getConceptDescriptionFromSchemaOrg(xrdftype)
 
     const JumpToPath = getComponent("JumpToPath", true)
@@ -89,13 +101,13 @@ export default class ObjectModel extends Component {
     const ModelCollapse = getComponent("ModelCollapse")
 
     const JumpToPathSection = () => {
-      return <span className="model-jump-to-path"><JumpToPath specPath={specPath} /></span>
+      return <span className="model-jump-to-path"><JumpToPath specPath={specPath}/></span>
     }
     const collapsedContent = (<span>
-        <span>{ braceOpen }</span>...<span>{ braceClose }</span>
-        {
-          isRef ? <JumpToPathSection /> : ""
-        }
+        <span>{braceOpen}</span>...<span>{braceClose}</span>
+      {
+        isRef ? <JumpToPathSection/> : ""
+      }
     </span>)
 
     const anyOf = specSelectors.isOAS3() ? schema.get("anyOf") : null
@@ -103,11 +115,11 @@ export default class ObjectModel extends Component {
     const not = specSelectors.isOAS3() ? schema.get("not") : null
 
     const titleEl = title && <span className="model-title">
-      { isRef && schema.get("$$ref") && <span className="model-hint">{ schema.get("$$ref") }</span> }
+      {isRef && schema.get("$$ref") && <span className="model-hint">{schema.get("$$ref")}</span>}
       <span className="model-title__text">
         <span>
-          <p><a title={ conceptDescription } href={ xrdftype }>{ title }</a></p>
-          <p>{ conceptDescription }</p>
+          <p><a title={conceptDescription} href={xrdftype}>{title}</a></p>
+          <p>{conceptDescription}</p>
         </span>
       </span>
     </span>
@@ -116,142 +128,147 @@ export default class ObjectModel extends Component {
       <ModelCollapse
         modelName={name}
         title={titleEl}
-        onToggle = {onToggle}
-        expanded={ expanded ? true : depth <= expandDepth }
-        collapsedContent={ collapsedContent }>
+        onToggle={onToggle}
+        expanded={expanded ? true : depth <= expandDepth}
+        collapsedContent={collapsedContent}>
 
-         <span className="brace-open object">{ braceOpen }</span>
-          {
-            !isRef ? null : <JumpToPathSection />
-          }
-          <span className="inner-object">
+         <span className="brace-open object">{braceOpen}</span>
+        {
+          !isRef ? null : <JumpToPathSection/>
+        }
+        <span className="inner-object">
             {
-              <table className="model"><tbody>
-              {
-                !description ? null : <tr style={{ color: "#666", fontWeight: "normal" }}>
-                    <td style={{ fontWeight: "bold" }}>description:</td>
+              <table className="model">
+                <tbody>
+                {
+                  !description ? null : <tr style={{color: "#666", fontWeight: "normal"}}>
+                    <td style={{fontWeight: "bold"}}>description:</td>
                     <td>
-                      <Markdown source={ description } />
+                      <Markdown source={description}/>
                     </td>
                   </tr>
-              }
-              {
-                !(properties && properties.size) ? null : properties.entrySeq().map(
+                }
+                {
+                  !(properties && properties.size) ? null : properties.entrySeq().map(
                     ([key, value]) => {
                       let isDeprecated = isOAS3() && value.get("deprecated")
                       let isRequired = List.isList(requiredProperties) && requiredProperties.contains(key)
-                      let propertyStyle = { verticalAlign: "top", paddingRight: "0.2em" }
-                      if ( isRequired ) {
+                      let propertyStyle = {verticalAlign: "top", paddingRight: "0.2em"}
+                      if (isRequired) {
                         propertyStyle.fontWeight = "bold"
                       }
 
+                      let xrdftypeProperty = this.getXRdfTypeProperty(properties, key)
+
                       return (<tr key={key} className={isDeprecated && "deprecated"}>
-                        <td style={ propertyStyle }>
-                          { key }{ isRequired && <span style={{ color: "red" }}>*</span> }
+                        <td style={propertyStyle}>
+                          <a href={xrdftypeProperty}>{key}</a>
+                          {isRequired && <span style={{color: "red"}}>*</span>}
                         </td>
-                        <td style={{ verticalAlign: "top" }}>
-                          <Model key={ `object-${name}-${key}_${value}` } { ...otherProps }
-                                 required={ isRequired }
-                                 getComponent={ getComponent }
+                        <td style={{verticalAlign: "top"}}>
+                          <Model key={`object-${name}-${key}_${value}`} {...otherProps}
+                                 required={isRequired}
+                                 getComponent={getComponent}
                                  specPath={specPath.push("properties", key)}
-                                 getConfigs={ getConfigs }
-                                 schema={ value }
-                                 depth={ depth + 1 } />
+                                 getConfigs={getConfigs}
+                                 schema={value}
+                                 depth={depth + 1}/>
                         </td>
                       </tr>)
                     }).toArray()
-              }
-              {
-                // empty row befor extensions...
-                !showExtensions ? null : <tr>&nbsp;</tr>
-              }
-              {
-                !showExtensions ? null :
-                  schema.entrySeq().map(
-                    ([key, value]) => {
-                      if(key.slice(0,2) !== "x-") {
-                        return
-                      }
+                }
+                {
+                  // empty row before extensions...
+                  !showExtensions ? null : <tr>&nbsp;</tr>
+                }
+                {
+                  !showExtensions ? null :
+                    schema.entrySeq().map(
+                      ([key, value]) => {
+                        if (key.slice(0, 2) !== "x-") {
+                          return
+                        }
 
-                      const normalizedValue = !value ? null : value.toJS ? value.toJS() : value
+                        const normalizedValue = !value ? null : value.toJS ? value.toJS() : value
 
-                      return (<tr key={key} style={{ color: "#777" }}>
-                        <td>
-                          { key }
-                        </td>
-                        <td style={{ verticalAlign: "top" }}>
-                          { JSON.stringify(normalizedValue) }
-                        </td>
-                      </tr>)
-                    }).toArray()
-              }
-              {
-                !additionalProperties || !additionalProperties.size ? null
-                  : <tr>
-                    <td>{ "< * >:" }</td>
-                    <td>
-                      <Model { ...otherProps } required={ false }
-                             getComponent={ getComponent }
-                             specPath={specPath.push("additionalProperties")}
-                             getConfigs={ getConfigs }
-                             schema={ additionalProperties }
-                             depth={ depth + 1 } />
-                    </td>
-                  </tr>
-              }
-              {
-                !anyOf ? null
-                  : <tr>
-                    <td>{ "anyOf ->" }</td>
-                    <td>
-                      {anyOf.map((schema, k) => {
-                        return <div key={k}><Model { ...otherProps } required={ false }
-                                 getComponent={ getComponent }
-                                 specPath={specPath.push("anyOf", k)}
-                                 getConfigs={ getConfigs }
-                                 schema={ schema }
-                                 depth={ depth + 1 } /></div>
-                      })}
-                    </td>
-                  </tr>
-              }
-              {
-                !oneOf ? null
-                  : <tr>
-                    <td>{ "oneOf ->" }</td>
-                    <td>
-                      {oneOf.map((schema, k) => {
-                        return <div key={k}><Model { ...otherProps } required={ false }
-                                 getComponent={ getComponent }
-                                 specPath={specPath.push("oneOf", k)}
-                                 getConfigs={ getConfigs }
-                                 schema={ schema }
-                                 depth={ depth + 1 } /></div>
-                      })}
-                    </td>
-                  </tr>
-              }
-              {
-                !not ? null
-                  : <tr>
-                    <td>{ "not ->" }</td>
-                    <td>
-                      <div>
-                        <Model { ...otherProps }
-                               required={ false }
-                               getComponent={ getComponent }
-                               specPath={specPath.push("not")}
-                               getConfigs={ getConfigs }
-                               schema={ not }
-                               depth={ depth + 1 } />
-                      </div>
-                    </td>
-                  </tr>
-              }
-              </tbody></table>
-          }
+                        return (<tr key={key} style={{color: "#777"}}>
+                          <td>
+                            {key}
+                          </td>
+                          <td style={{verticalAlign: "top"}}>
+                            {JSON.stringify(normalizedValue)}
+                          </td>
+                        </tr>)
+                      }).toArray()
+                }
+                {
+                  !additionalProperties || !additionalProperties.size ? null
+                    : <tr>
+                      <td>{"< * >:"}</td>
+                      <td>
+                        <Model {...otherProps} required={false}
+                               getComponent={getComponent}
+                               specPath={specPath.push("additionalProperties")}
+                               getConfigs={getConfigs}
+                               schema={additionalProperties}
+                               depth={depth + 1}/>
+                      </td>
+                    </tr>
+                }
+                {
+                  !anyOf ? null
+                    : <tr>
+                      <td>{"anyOf ->"}</td>
+                      <td>
+                        {anyOf.map((schema, k) => {
+                          return <div key={k}><Model {...otherProps} required={false}
+                                                     getComponent={getComponent}
+                                                     specPath={specPath.push("anyOf", k)}
+                                                     getConfigs={getConfigs}
+                                                     schema={schema}
+                                                     depth={depth + 1}/></div>
+                        })}
+                      </td>
+                    </tr>
+                }
+                {
+                  !oneOf ? null
+                    : <tr>
+                      <td>{"oneOf ->"}</td>
+                      <td>
+                        {oneOf.map((schema, k) => {
+                          return <div key={k}><Model {...otherProps} required={false}
+                                                     getComponent={getComponent}
+                                                     specPath={specPath.push("oneOf", k)}
+                                                     getConfigs={getConfigs}
+                                                     schema={schema}
+                                                     depth={depth + 1}/></div>
+                        })}
+                      </td>
+                    </tr>
+                }
+                {
+                  !not ? null
+                    : <tr>
+                      <td>{"not ->"}</td>
+                      <td>
+                        <div>
+                          <Model {...otherProps}
+                                 required={false}
+                                 getComponent={getComponent}
+                                 specPath={specPath.push("not")}
+                                 getConfigs={getConfigs}
+                                 schema={not}
+                                 depth={depth + 1}/>
+                        </div>
+                      </td>
+                    </tr>
+                }
+                </tbody>
+              </table>
+            }
         </span>
-        <span className="brace-close">{ braceClose }</span>
+        <span className="brace-close">{braceClose}</span>
       </ModelCollapse>
     </span>
   }
