@@ -159,10 +159,11 @@ export default class ObjectModel extends Component {
                       }
 
                       let xrdftypeProperty = this.getXRdfTypeProperty(properties, key)
+                      let propertyDescription = this.getConceptDescriptionFromSchemaOrg(xrdftypeProperty)
 
                       return (<tr key={key} className={isDeprecated && "deprecated"}>
                         <td style={propertyStyle}>
-                          <a href={xrdftypeProperty}>{key}</a>
+                          <a title={propertyDescription} href={xrdftypeProperty}>{key}</a>
                           {isRequired && <span style={{color: "red"}}>*</span>}
                         </td>
                         <td style={{verticalAlign: "top"}}>

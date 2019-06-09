@@ -865,6 +865,7 @@
       "properties": {
         "id": {
           "type": "integer",
+          "x-rdf-type": "http://schema.org/identifier",
           "format": "int64"
         },
         "petId": {
@@ -881,6 +882,7 @@
         },
         "status": {
           "type": "string",
+          "x-rdf-type": "http://schema.org/orderStatus",
           "description": "Order Status",
           "enum": [
             "placed",
@@ -924,19 +926,22 @@
           "type": "string"
         },
         "firstName": {
-          "type": "string"
+          "type": "string",
+          "x-rdf-type": "http://schema.org/name"
         },
         "lastName": {
           "type": "string"
         },
         "email": {
-          "type": "string"
+          "type": "string",
+          "x-rdf-type": "http://schema.org/email"
         },
         "password": {
           "type": "string"
         },
         "phone": {
-          "type": "string"
+          "type": "string",
+          "x-rdf-type": "http://schema.org/telephone"
         },
         "userStatus": {
           "type": "integer",
@@ -965,7 +970,6 @@
     },
     "Pet": {
       "type": "object",
-      "x-rdf-type": "http://schema.org/Pet",
       "required": [
         "name",
         "photoUrls"
