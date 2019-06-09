@@ -579,7 +579,7 @@ securityDefinitions:
 definitions:
   Order:
     type: object
-    x-rdf-type: 'http://schema.org/Order'
+    x-rdf-type: http://schema.org/Order
     properties:
       id:
         type: integer
@@ -587,6 +587,7 @@ definitions:
         format: int64
       petId:
         type: integer
+        x-rdf-type: http://schema.org/identifier
         format: int64
       quantity:
         type: integer
@@ -612,6 +613,7 @@ definitions:
     properties:
       id:
         type: integer
+        x-rdf-type: http://schema.org/identifier
         format: int64
       name:
         type: string
@@ -619,10 +621,11 @@ definitions:
       name: Category
   User:
     type: object
-    x-rdf-type: 'http://schema.org/Person'
+    x-rdf-type: http://schema.org/Person
     properties:
       id:
         type: integer
+        x-rdf-type: http://schema.org/identifier
         format: int64
       username:
         type: string
@@ -631,11 +634,13 @@ definitions:
         x-rdf-type: http://schema.org/name
       lastName:
         type: string
+        x-rdf-type: http://schema.org/name
       email:
         type: string
         x-rdf-type: http://schema.org/email
       password:
         type: string
+        x-rdf-type: http://schema.org/accessCode
       phone:
         type: string
         x-rdf-type: http://schema.org/telephone
@@ -650,6 +655,7 @@ definitions:
     properties:
       id:
         type: integer
+        x-rdf-type: http://schema.org/identifier
         format: int64
       name:
         type: string
@@ -663,11 +669,13 @@ definitions:
     properties:
       id:
         type: integer
+        x-rdf-type: http://schema.org/identifier
         format: int64
       category:
         $ref: '#/definitions/Category'
       name:
         type: string
+        x-rdf-type: http://schema.org/name
         example: doggie
       photoUrls:
         type: array

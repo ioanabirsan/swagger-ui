@@ -861,13 +861,16 @@
   "definitions": {
     "Order": {
       "type": "object",
+      "x-rdf-type": "http://schema.org/Order",
       "properties": {
         "id": {
           "type": "integer",
+          "x-rdf-type": "http://schema.org/identifier",
           "format": "int64"
         },
         "petId": {
           "type": "integer",
+          "x-rdf-type": "http://schema.org/identifier",
           "format": "int64"
         },
         "quantity": {
@@ -880,6 +883,7 @@
         },
         "status": {
           "type": "string",
+          "x-rdf-type": "http://schema.org/orderStatus",
           "description": "Order Status",
           "enum": [
             "placed",
@@ -901,6 +905,7 @@
       "properties": {
         "id": {
           "type": "integer",
+          "x-rdf-type": "http://schema.org/identifier",
           "format": "int64"
         },
         "name": {
@@ -913,29 +918,35 @@
     },
     "User": {
       "type": "object",
-      "x-rdf-type": "https://schema.org/Person",
+      "x-rdf-type": "http://schema.org/Person",
       "properties": {
         "id": {
           "type": "integer",
+          "x-rdf-type": "http://schema.org/identifier",
           "format": "int64"
         },
         "username": {
           "type": "string"
         },
         "firstName": {
-          "type": "string"
+          "type": "string",
+          "x-rdf-type": "http://schema.org/name"
         },
         "lastName": {
-          "type": "string"
+          "type": "string",
+          "x-rdf-type": "http://schema.org/name"
         },
         "email": {
-          "type": "string"
+          "type": "string",
+          "x-rdf-type": "http://schema.org/email"
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "x-rdf-type": "http://schema.org/accessCode"
         },
         "phone": {
-          "type": "string"
+          "type": "string",
+          "x-rdf-type": "http://schema.org/telephone"
         },
         "userStatus": {
           "type": "integer",
@@ -952,6 +963,7 @@
       "properties": {
         "id": {
           "type": "integer",
+          "x-rdf-type": "http://schema.org/identifier",
           "format": "int64"
         },
         "name": {
@@ -971,6 +983,7 @@
       "properties": {
         "id": {
           "type": "integer",
+          "x-rdf-type": "http://schema.org/identifier",
           "format": "int64"
         },
         "category": {
@@ -978,6 +991,7 @@
         },
         "name": {
           "type": "string",
+          "x-rdf-type": "http://schema.org/name",
           "example": "doggie"
         },
         "photoUrls": {
