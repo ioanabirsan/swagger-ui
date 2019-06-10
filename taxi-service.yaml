@@ -474,7 +474,6 @@ components:
           x-rdf-type: http://schema.org/vehicleEngine
         price:
           type: number
-          x-rdf-type: http://schema.org/price
         weight:
           type: number
           x-rdf-type: http://schema.org/weightTotal
@@ -510,7 +509,6 @@ components:
           x-rdf-type: http://schema.org/provider
         rating:
           type: number
-          x-rdf-type: http://schema.org/aggregateRating
         reviews:
           type: array
           items:
@@ -533,7 +531,6 @@ components:
           x-rdf-type: http://schema.org/hoursAvailable
         phoneNumber:
           type: string
-          x-rdf-type: http://schema.org/telephone
     Customer:
       type: object
       x-rdf-type: 'http://schema.org/Person'
