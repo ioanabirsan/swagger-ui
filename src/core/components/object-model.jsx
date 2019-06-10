@@ -55,11 +55,11 @@ export default class ObjectModel extends Component {
     return concept["rdfs:comment"]
   }
 
-  getXRdfTypeProperty (properties, propertyName){
+  getProperty (properties, propertyName){
     for (var [key, value] of properties.entries()){
       if (key === propertyName) {
         for (var [innerKey, innerValue] of value.entries()) {
-          if (innerKey === "x-rdf-type") {
+          if (innerKey === "x-same-as") {
             return innerValue
           }
         }
@@ -91,9 +91,9 @@ export default class ObjectModel extends Component {
     let additionalProperties = schema.get("additionalProperties")
     let title = schema.get("title") || displayName || name
     let requiredProperties = schema.get("required")
-    let xrdftype = schema.get("x-rdf-type") || null
+    let xSameAs = schema.get("x-same-as") || schema.get("x-rdf-type") || null
 
-    let conceptDescription = this.getConceptDescriptionFromSchemaOrg(xrdftype)
+    let conceptDescription = this.getConceptDescriptionFromSchemaOrg(xSameAs)
 
     const JumpToPath = getComponent("JumpToPath", true)
     const Markdown = getComponent("Markdown")
@@ -118,7 +118,7 @@ export default class ObjectModel extends Component {
       {isRef && schema.get("$$ref") && <span className="model-hint">{schema.get("$$ref")}</span>}
       <span className="model-title__text">
         <span>
-          <p><a title={conceptDescription} href={xrdftype}>{title}</a></p>
+          <p><a title={conceptDescription} href={xSameAs}>{title}</a></p>
           <p>{conceptDescription}</p>
         </span>
       </span>
@@ -158,12 +158,12 @@ export default class ObjectModel extends Component {
                         propertyStyle.fontWeight = "bold"
                       }
 
-                      let xrdftypeProperty = this.getXRdfTypeProperty(properties, key)
-                      let propertyDescription = this.getConceptDescriptionFromSchemaOrg(xrdftypeProperty)
+                      let xSameAsProperty = this.getProperty(properties, key)
+                      let propertyDescription = this.getConceptDescriptionFromSchemaOrg(xSameAsProperty)
 
-                      return (<tr itemProp={xrdftypeProperty} key={key} className={isDeprecated && "deprecated"}>
+                      return (<tr itemProp={xSameAsProperty} key={key} className={isDeprecated && "deprecated"}>
                         <td style={propertyStyle}>
-                          <a title={propertyDescription} href={xrdftypeProperty}>{key}</a>
+                          <a title={propertyDescription} href={xSameAsProperty}>{key}</a>
                           {isRequired && <span style={{color: "red"}}>*</span>}
                         </td>
                         <td style={{verticalAlign: "top"}}>

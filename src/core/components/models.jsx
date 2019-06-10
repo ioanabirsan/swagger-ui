@@ -64,7 +64,7 @@ export default class Models extends Component {
             const rawSchema = Map.isMap(rawSchemaValue) ? rawSchemaValue : Im.Map()
 
             const displayName = schema.get("title") || rawSchema.get("title") || name
-            const xrdftype = schema.get("x-rdf-type")
+            const xSameAs = schema.get("x-same-as") || schema.get("x-rdf-type") || null
             const isShown = layoutSelectors.isShown( ["models", name], false )
 
             if( isShown && (schema.size === 0 && rawSchema.size > 0) ) {
@@ -92,7 +92,7 @@ export default class Models extends Component {
               </span>
             </span>
 
-            return <div itemScope itemType={xrdftype} id={ `model-${name}` } className="model-container" key={ `models-section-${name}` }>
+            return <div itemScope itemType={xSameAs} id={ `model-${name}` } className="model-container" key={ `models-section-${name}` }>
               <span className="models-jump-to-path"><JumpToPath specPath={specPath} /></span>
               <ModelCollapse
                 classes="model-box"
