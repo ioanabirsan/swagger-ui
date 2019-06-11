@@ -13,6 +13,11 @@ let hyperlinkStyle = {
   color: '#1f69c0'
 }
 
+let descriptionStyle = {
+  textDecoration: 'none',
+  color: '#505050'
+}
+
 export default class ObjectModel extends Component {
 
   static propTypes = {
@@ -124,8 +129,11 @@ export default class ObjectModel extends Component {
       {isRef && schema.get('$$ref') && <span className="model-hint">{schema.get('$$ref')}</span>}
       <span className="model-title__text">
         <span>
-          <p>{title} (<a style={hyperlinkStyle} href={xSameAs} target="_blank">{xSameAs}</a>)</p>
-          <p>{conceptDescription}</p>
+          <p>{title}
+            {/*if it doesn't exist, do not display <>*/}
+            {xSameAs && <a style={hyperlinkStyle} href={xSameAs} target="_blank">&lt;{xSameAs}&gt;</a>}
+          </p>
+          <p><a style={descriptionStyle} href={xSameAs} target={'_blank'}>{conceptDescription}</a></p>
         </span>
       </span>
     </span>
@@ -162,10 +170,6 @@ export default class ObjectModel extends Component {
                       let tableRowStyle = {
                         borderBottom: '1px solid #85929e'
                       }
-                      let descriptionStyle = {
-                        textDecoration: 'none',
-                        color: '#505050'
-                      }
                       let propertyStyle =
                         {
                           verticalAlign: 'top',
@@ -198,10 +202,13 @@ export default class ObjectModel extends Component {
                                  depth={depth + 1}/>
                         </td>
                         <td style={propertyStyle}>
-                          (<a style={hyperlinkStyle} href={xSameAsProperty} target="_blank">{xSameAsProperty}</a>)
+                          <a style={hyperlinkStyle} href={xSameAsProperty} target="_blank">
+                            {/*if it doesn't exist, do not display <>*/}
+                            {xSameAsProperty && <span>&lt;{xSameAsProperty}&gt;</span>}
+                          </a>
                         </td>
                         <td style={propertyStyle}>
-                          <a style={descriptionStyle} href={xSameAsProperty} target="_blank"> {propertyDescription}</a>
+                          <a style={descriptionStyle} href={xSameAsProperty} target="_blank">{propertyDescription}</a>
                         </td>
                       </tr>)
                     }).toArray()
