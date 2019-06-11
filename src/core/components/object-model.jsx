@@ -1,11 +1,17 @@
-import React, { Component, } from "react"
-import PropTypes from "prop-types"
-import { List } from "immutable"
-import ImPropTypes from "react-immutable-proptypes"
-import schemaOrg from "./schema-org"
+import React, { Component, } from 'react'
+import PropTypes from 'prop-types'
+import { List } from 'immutable'
+import ImPropTypes from 'react-immutable-proptypes'
+import schemaOrg from './schema-org'
+import Parser from 'html-react-parser'
 
-const braceOpen = "{"
-const braceClose = "}"
+const braceOpen = '{'
+const braceClose = '}'
+
+let hyperlinkStyle = {
+  textDecoration: 'none',
+  color: '#1f69c0'
+}
 
 export default class ObjectModel extends Component {
 
@@ -44,7 +50,7 @@ export default class ObjectModel extends Component {
 
   getConceptFromSchemaOrg (id) {
     let schemaOrg = this.getSchemaOrg()
-    return schemaOrg["@graph"].find(concept => concept["@id"] === id)
+    return schemaOrg['@graph'].find(concept => concept['@id'] === id)
   }
 
   getSchemaOrg () {
@@ -52,14 +58,14 @@ export default class ObjectModel extends Component {
   }
 
   getDescription (concept) {
-    return concept["rdfs:comment"]
+    return concept['rdfs:comment']
   }
 
-  getProperty (properties, propertyName){
-    for (var [key, value] of properties.entries()){
+  getProperty (properties, propertyName) {
+    for (var [key, value] of properties.entries()) {
       if (key === propertyName) {
         for (var [innerKey, innerValue] of value.entries()) {
-          if (innerKey === "x-same-as") {
+          if (innerKey === 'x-same-as') {
             return innerValue
           }
         }
@@ -69,7 +75,7 @@ export default class ObjectModel extends Component {
   }
 
   componentWillMount () {
-    fetch("https://schema.org/version/3.7/schema.jsonld")
+    fetch('https://schema.org/version/3.7/schema.jsonld')
       .then(response => response.json())
       .then(schema => this.setState({schemaOrg: schema}))
       .catch(() => this.setState({schemaOrg: schemaOrg}))
@@ -86,19 +92,19 @@ export default class ObjectModel extends Component {
 
     const {showExtensions} = getConfigs()
 
-    let description = schema.get("description")
-    let properties = schema.get("properties")
-    let additionalProperties = schema.get("additionalProperties")
-    let title = schema.get("title") || displayName || name
-    let requiredProperties = schema.get("required")
-    let xSameAs = schema.get("x-same-as") || schema.get("x-rdf-type") || null
+    let description = schema.get('description')
+    let properties = schema.get('properties')
+    let additionalProperties = schema.get('additionalProperties')
+    let title = schema.get('title') || displayName || name
+    let requiredProperties = schema.get('required')
+    let xSameAs = schema.get('x-same-as') || schema.get('x-rdf-type') || null
 
     let conceptDescription = this.getConceptDescriptionFromSchemaOrg(xSameAs)
 
-    const JumpToPath = getComponent("JumpToPath", true)
-    const Markdown = getComponent("Markdown")
-    const Model = getComponent("Model")
-    const ModelCollapse = getComponent("ModelCollapse")
+    const JumpToPath = getComponent('JumpToPath', true)
+    const Markdown = getComponent('Markdown')
+    const Model = getComponent('Model')
+    const ModelCollapse = getComponent('ModelCollapse')
 
     const JumpToPathSection = () => {
       return <span className="model-jump-to-path"><JumpToPath specPath={specPath}/></span>
@@ -106,19 +112,19 @@ export default class ObjectModel extends Component {
     const collapsedContent = (<span>
         <span>{braceOpen}</span>...<span>{braceClose}</span>
       {
-        isRef ? <JumpToPathSection/> : ""
+        isRef ? <JumpToPathSection/> : ''
       }
     </span>)
 
-    const anyOf = specSelectors.isOAS3() ? schema.get("anyOf") : null
-    const oneOf = specSelectors.isOAS3() ? schema.get("oneOf") : null
-    const not = specSelectors.isOAS3() ? schema.get("not") : null
+    const anyOf = specSelectors.isOAS3() ? schema.get('anyOf') : null
+    const oneOf = specSelectors.isOAS3() ? schema.get('oneOf') : null
+    const not = specSelectors.isOAS3() ? schema.get('not') : null
 
     const titleEl = title && <span className="model-title">
-      {isRef && schema.get("$$ref") && <span className="model-hint">{schema.get("$$ref")}</span>}
+      {isRef && schema.get('$$ref') && <span className="model-hint">{schema.get('$$ref')}</span>}
       <span className="model-title__text">
         <span>
-          <p><a title={conceptDescription} href={xSameAs}>{title}</a></p>
+          <p>{title} (<a style={hyperlinkStyle} href={xSameAs} target="_blank">{xSameAs}</a>)</p>
           <p>{conceptDescription}</p>
         </span>
       </span>
@@ -141,8 +147,8 @@ export default class ObjectModel extends Component {
               <table className="model">
                 <tbody>
                 {
-                  !description ? null : <tr style={{color: "#666", fontWeight: "normal"}}>
-                    <td style={{fontWeight: "bold"}}>description:</td>
+                  !description ? null : <tr style={{color: '#666', fontWeight: 'normal'}}>
+                    <td style={{fontWeight: 'bold'}}>description:</td>
                     <td>
                       <Markdown source={description}/>
                     </td>
@@ -151,29 +157,51 @@ export default class ObjectModel extends Component {
                 {
                   !(properties && properties.size) ? null : properties.entrySeq().map(
                     ([key, value]) => {
-                      let isDeprecated = isOAS3() && value.get("deprecated")
+                      let isDeprecated = isOAS3() && value.get('deprecated')
                       let isRequired = List.isList(requiredProperties) && requiredProperties.contains(key)
-                      let propertyStyle = {verticalAlign: "top", paddingRight: "0.2em"}
+                      let tableRowStyle = {
+                        borderBottom: '1px solid #85929e'
+                      }
+                      let descriptionStyle = {
+                        textDecoration: 'none',
+                        color: '#505050'
+                      }
+                      let propertyStyle =
+                        {
+                          verticalAlign: 'top',
+                          padding: '0.5em'
+                        }
                       if (isRequired) {
-                        propertyStyle.fontWeight = "bold"
+                        propertyStyle.fontWeight = 'bold'
                       }
 
                       let xSameAsProperty = this.getProperty(properties, key)
-                      let propertyDescription = this.getConceptDescriptionFromSchemaOrg(xSameAsProperty)
+                      let propertyDescription
+                      if (this.getConceptDescriptionFromSchemaOrg(xSameAsProperty)) {
+                        propertyDescription = Parser(this.getConceptDescriptionFromSchemaOrg(xSameAsProperty))
+                      } else {
+                        propertyDescription = this.getConceptDescriptionFromSchemaOrg(xSameAsProperty)
+                      }
 
-                      return (<tr itemProp={xSameAsProperty} key={key} className={isDeprecated && "deprecated"}>
+                      return (<tr style={tableRowStyle} itemProp={xSameAsProperty} key={key}
+                                  className={isDeprecated && 'deprecated'}>
                         <td style={propertyStyle}>
-                          <a title={propertyDescription} href={xSameAsProperty}>{key}</a>
-                          {isRequired && <span style={{color: "red"}}>*</span>}
+                          {key}{isRequired && <span style={{color: 'red'}}>*</span>}
                         </td>
-                        <td style={{verticalAlign: "top"}}>
+                        <td style={propertyStyle}>
                           <Model key={`object-${name}-${key}_${value}`} {...otherProps}
                                  required={isRequired}
                                  getComponent={getComponent}
-                                 specPath={specPath.push("properties", key)}
+                                 specPath={specPath.push('properties', key)}
                                  getConfigs={getConfigs}
                                  schema={value}
                                  depth={depth + 1}/>
+                        </td>
+                        <td style={propertyStyle}>
+                          (<a style={hyperlinkStyle} href={xSameAsProperty} target="_blank">{xSameAsProperty}</a>)
+                        </td>
+                        <td style={propertyStyle}>
+                          <a style={descriptionStyle} href={xSameAsProperty} target="_blank"> {propertyDescription}</a>
                         </td>
                       </tr>)
                     }).toArray()
@@ -186,17 +214,17 @@ export default class ObjectModel extends Component {
                   !showExtensions ? null :
                     schema.entrySeq().map(
                       ([key, value]) => {
-                        if (key.slice(0, 2) !== "x-") {
+                        if (key.slice(0, 2) !== 'x-') {
                           return
                         }
 
                         const normalizedValue = !value ? null : value.toJS ? value.toJS() : value
 
-                        return (<tr key={key} style={{color: "#777"}}>
+                        return (<tr key={key} style={{color: '#777'}}>
                           <td>
                             {key}
                           </td>
-                          <td style={{verticalAlign: "top"}}>
+                          <td style={{verticalAlign: 'top'}}>
                             {JSON.stringify(normalizedValue)}
                           </td>
                         </tr>)
@@ -205,11 +233,11 @@ export default class ObjectModel extends Component {
                 {
                   !additionalProperties || !additionalProperties.size ? null
                     : <tr>
-                      <td>{"< * >:"}</td>
+                      <td>{'< * >:'}</td>
                       <td>
                         <Model {...otherProps} required={false}
                                getComponent={getComponent}
-                               specPath={specPath.push("additionalProperties")}
+                               specPath={specPath.push('additionalProperties')}
                                getConfigs={getConfigs}
                                schema={additionalProperties}
                                depth={depth + 1}/>
@@ -219,12 +247,12 @@ export default class ObjectModel extends Component {
                 {
                   !anyOf ? null
                     : <tr>
-                      <td>{"anyOf ->"}</td>
+                      <td>{'anyOf ->'}</td>
                       <td>
                         {anyOf.map((schema, k) => {
                           return <div key={k}><Model {...otherProps} required={false}
                                                      getComponent={getComponent}
-                                                     specPath={specPath.push("anyOf", k)}
+                                                     specPath={specPath.push('anyOf', k)}
                                                      getConfigs={getConfigs}
                                                      schema={schema}
                                                      depth={depth + 1}/></div>
@@ -235,12 +263,12 @@ export default class ObjectModel extends Component {
                 {
                   !oneOf ? null
                     : <tr>
-                      <td>{"oneOf ->"}</td>
+                      <td>{'oneOf ->'}</td>
                       <td>
                         {oneOf.map((schema, k) => {
                           return <div key={k}><Model {...otherProps} required={false}
                                                      getComponent={getComponent}
-                                                     specPath={specPath.push("oneOf", k)}
+                                                     specPath={specPath.push('oneOf', k)}
                                                      getConfigs={getConfigs}
                                                      schema={schema}
                                                      depth={depth + 1}/></div>
@@ -251,13 +279,13 @@ export default class ObjectModel extends Component {
                 {
                   !not ? null
                     : <tr>
-                      <td>{"not ->"}</td>
+                      <td>{'not ->'}</td>
                       <td>
                         <div>
                           <Model {...otherProps}
                                  required={false}
                                  getComponent={getComponent}
-                                 specPath={specPath.push("not")}
+                                 specPath={specPath.push('not')}
                                  getConfigs={getConfigs}
                                  schema={not}
                                  depth={depth + 1}/>
