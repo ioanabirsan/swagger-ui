@@ -8,11 +8,6 @@ import Parser from 'html-react-parser'
 const braceOpen = '{'
 const braceClose = '}'
 
-let hyperlinkStyle = {
-  textDecoration: 'none',
-  color: '#1f69c0'
-}
-
 let descriptionStyle = {
   textDecoration: 'none',
   color: '#505050'
@@ -67,9 +62,9 @@ export default class ObjectModel extends Component {
   }
 
   getProperty (properties, propertyName) {
-    for (var [key, value] of properties.entries()) {
+    for (let [key, value] of properties.entries()) {
       if (key === propertyName) {
-        for (var [innerKey, innerValue] of value.entries()) {
+        for (let [innerKey, innerValue] of value.entries()) {
           if (innerKey === 'x-same-as') {
             return innerValue
           }
@@ -129,9 +124,8 @@ export default class ObjectModel extends Component {
       {isRef && schema.get('$$ref') && <span className="model-hint">{schema.get('$$ref')}</span>}
       <span className="model-title__text">
         <span>
-          <p>{title}
-            {/*if it doesn't exist, do not display <>*/}
-            {xSameAs && <a style={hyperlinkStyle} href={xSameAs} target="_blank">&lt;{xSameAs}&gt;</a>}
+          {/*if it doesn't exist, do not display empty <>*/}
+          <p>{title} {xSameAs && <a href={xSameAs} target="_blank">&lt;{xSameAs}&gt;</a>}
           </p>
           <p><a style={descriptionStyle} href={xSameAs} target={'_blank'}>{conceptDescription}</a></p>
         </span>
@@ -202,8 +196,8 @@ export default class ObjectModel extends Component {
                                  depth={depth + 1}/>
                         </td>
                         <td style={propertyStyle}>
-                          <a style={hyperlinkStyle} href={xSameAsProperty} target="_blank">
-                            {/*if it doesn't exist, do not display <>*/}
+                          <a href={xSameAsProperty} target="_blank">
+                            {/*if it doesn't exist, do not display empty <>*/}
                             {xSameAsProperty && <span>&lt;{xSameAsProperty}&gt;</span>}
                           </a>
                         </td>
