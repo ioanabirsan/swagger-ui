@@ -5,6 +5,8 @@ import ImPropTypes from 'react-immutable-proptypes'
 import schemaOrg from './schema-org'
 import Parser from 'html-react-parser'
 
+let rdfKeywords = {"x-rdf-type": "rdf:type", "x-same-as": "owl:sameAs"}
+
 const braceOpen = '{'
 const braceClose = '}'
 
@@ -65,7 +67,7 @@ export default class ObjectModel extends Component {
     for (let [key, value] of properties.entries()) {
       if (key === propertyName) {
         for (let [innerKey, innerValue] of value.entries()) {
-          if (innerKey === 'x-same-as') {
+          if (innerKey in rdfKeywords) {
             return innerValue
           }
         }
@@ -97,9 +99,9 @@ export default class ObjectModel extends Component {
     let additionalProperties = schema.get('additionalProperties')
     let title = schema.get('title') || displayName || name
     let requiredProperties = schema.get('required')
-    let xSameAs = schema.get('x-same-as') || schema.get('x-rdf-type') || null
+    let extensionClass = schema.get('x-same-as') || schema.get('x-rdf-type') || null
 
-    let conceptDescription = this.getConceptDescriptionFromSchemaOrg(xSameAs)
+    let conceptDescription = this.getConceptDescriptionFromSchemaOrg(extensionClass)
 
     const JumpToPath = getComponent('JumpToPath', true)
     const Markdown = getComponent('Markdown')
@@ -125,9 +127,9 @@ export default class ObjectModel extends Component {
       <span className="model-title__text">
         <span>
           {/*if it doesn't exist, do not display empty <>*/}
-          <p>{title} {xSameAs && <a href={xSameAs} target="_blank">&lt;{xSameAs}&gt;</a>}
+          <p>{title} {extensionClass && <a href={extensionClass} target="_blank">&lt;{extensionClass}&gt;</a>}
           </p>
-          <p><a style={descriptionStyle} href={xSameAs} target={'_blank'}>{conceptDescription}</a></p>
+          <p><a style={descriptionStyle} href={extensionClass} target={'_blank'}>{conceptDescription}</a></p>
         </span>
       </span>
     </span>
@@ -173,15 +175,15 @@ export default class ObjectModel extends Component {
                         propertyStyle.fontWeight = 'bold'
                       }
 
-                      let xSameAsProperty = this.getProperty(properties, key)
+                      let extensionProperty = this.getProperty(properties, key)
                       let propertyDescription
-                      if (this.getConceptDescriptionFromSchemaOrg(xSameAsProperty)) {
-                        propertyDescription = Parser(this.getConceptDescriptionFromSchemaOrg(xSameAsProperty))
+                      if (this.getConceptDescriptionFromSchemaOrg(extensionProperty)) {
+                        propertyDescription = Parser(this.getConceptDescriptionFromSchemaOrg(extensionProperty))
                       } else {
-                        propertyDescription = this.getConceptDescriptionFromSchemaOrg(xSameAsProperty)
+                        propertyDescription = this.getConceptDescriptionFromSchemaOrg(extensionProperty)
                       }
 
-                      return (<tr style={tableRowStyle} itemProp={xSameAsProperty} key={key}
+                      return (<tr style={tableRowStyle} itemProp={extensionProperty} key={key}
                                   className={isDeprecated && 'deprecated'}>
                         <td style={propertyStyle}>
                           {key}{isRequired && <span style={{color: 'red'}}>*</span>}
@@ -196,13 +198,13 @@ export default class ObjectModel extends Component {
                                  depth={depth + 1}/>
                         </td>
                         <td style={propertyStyle}>
-                          <a href={xSameAsProperty} target="_blank">
+                          <a href={extensionProperty} target="_blank">
                             {/*if it doesn't exist, do not display empty <>*/}
-                            {xSameAsProperty && <span>&lt;{xSameAsProperty}&gt;</span>}
+                            {extensionProperty && <span>&lt;{extensionProperty}&gt;</span>}
                           </a>
                         </td>
                         <td style={propertyStyle}>
-                          <a style={descriptionStyle} href={xSameAsProperty} target="_blank">{propertyDescription}</a>
+                          <a style={descriptionStyle} href={extensionProperty} target="_blank">{propertyDescription}</a>
                         </td>
                       </tr>)
                     }).toArray()
